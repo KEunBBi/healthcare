@@ -1,0 +1,31 @@
+# 환경변수 / 비밀정보
+.env
+.env.*
+*.key
+*.pem
+
+# Node.js (backend, web, mobile)
+node_modules/
+dist/
+build/
+.next/
+*.log
+
+# Python (health-ai)
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+*.egg-info/
+.ipynb_checkpoints/
+
+# React Native / Mobile
+.expo/
+*.jks
+
+# OS / 에디터
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
