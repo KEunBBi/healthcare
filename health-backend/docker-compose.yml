@@ -6,9 +6,13 @@ services:
     image: health-backend-${BACKEND_PORT}:latest
     container_name: health-backend-${BACKEND_PORT}
     restart: unless-stopped
-    # 학생별 BACKEND_PORT를 그대로 호스트 포트로 쓰기 때문에 별도 포트 매핑이 필요 없고,
-    # 서버에 떠 있는 health-ai(localhost:8000) 등에도 컨테이너 안에서 localhost로 접근할 수 있다.
-    network_mode: host
+    # 배포 서버의 리버스 프록시가 컨테이너의 Docker 포트 매핑을 보고 라우팅하므로
+    # network_mode: host를 쓰지 않고 표준 포트 매핑을 쓴다(호스트/컨테이너 모두 BACKEND_PORT로 동일).
+    ports:
+      - '${BACKEND_PORT}:${BACKEND_PORT}'
+    # host 네트워크가 아니어도 host.docker.internal로 호스트에 떠 있는 health-ai(localhost:8000)에 접근한다.
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     environment:
       PORT: ${BACKEND_PORT}
       DATABASE_HOST: ${DATABASE_HOST}
@@ -24,4 +28,5 @@ services:
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
       CORS_ORIGINS: ${CORS_ORIGINS}
       # Secret/Variable에 없는 값은 고정값을 사용한다.
-      AI_AGENT_BASE_URL: http://localhost:8000
+      # network_mode: host가 아니므로 localhost 대신 host.docker.internal로 호스트에 접근한다.
+      AI_AGENT_BASE_URL: http://host.docker.internal:8000
