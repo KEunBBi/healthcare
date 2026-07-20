@@ -10,8 +10,8 @@ services:
     image: health-web-${FRONTEND_PORT}:latest
     container_name: health-web-${FRONTEND_PORT}
     restart: unless-stopped
-    # 학생별 FRONTEND_PORT를 그대로 호스트 포트로 쓰기 때문에 별도 포트 매핑이 필요 없다.
-    network_mode: host
-    environment:
-      # nginx가 실제로 바인딩할 포트. VITE_* 값과 달리 컨테이너 런타임에 주입된다.
-      FRONTEND_PORT: ${FRONTEND_PORT}
+    # 배포 서버의 리버스 프록시가 컨테이너의 Docker 포트 매핑을 보고 라우팅하므로
+    # network_mode: host를 쓰지 않고 표준 포트 매핑을 쓴다(호스트의 FRONTEND_PORT -> 컨테이너 80).
+    # health-backend에서도 동일한 원인(network_mode: host)으로 502가 나서 이 방식으로 바꿔 해결했다.
+    ports:
+      - '${FRONTEND_PORT}:80'
