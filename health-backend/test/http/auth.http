@@ -1,0 +1,52 @@
+### health-backend 인증 API 테스트 (VSCode REST Client 확장)
+### 사용법: VSCode에 "REST Client"(humao.rest-client) 확장 설치 후, 각 요청 위의 "Send Request" 클릭
+@baseUrl = http://localhost:3030/api
+
+### 1. 로그인 성공 (환자 user_001)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "id": "user_001",
+  "passwd": "user_001123!"
+}
+
+### 2. 로그인 성공 (의사 admin)
+# @name loginDoctor
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "id": "admin",
+  "passwd": "admin001123!"
+}
+
+### 3. 로그인 실패 (비밀번호 불일치 → 401 INVALID_CREDENTIALS)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "id": "user_001",
+  "passwd": "wrong-password"
+}
+
+### 4. AccessToken 재발급 (위 1번 로그인 응답의 refreshToken을 그대로 사용)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.$.data.refreshToken}}"
+}
+
+### 5. AccessToken 재발급 실패 (유효하지 않은 토큰 → 401 INVALID_REFRESH_TOKEN)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "not-a-valid-token"
+}
+
+### 6. 재발급받은 AccessToken으로 인증 확인 (예: 회원 목록 조회)
+GET {{baseUrl}}/members
+Authorization: Bearer {{login.response.body.$.data.accessToken}}

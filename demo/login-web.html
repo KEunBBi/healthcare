@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>로그인 - Web (React)</title>
+<style>
+  /* Tokens sourced from docs/DESIGN-apple.md */
+  :root {
+    --primary: #0066cc;
+    --primary-focus: #0071e3;
+    --primary-on-dark: #2997ff;
+    --ink: #1d1d1f;
+    --ink-muted-80: #333333;
+    --ink-muted-48: #7a7a7a;
+    --body-muted: #cccccc;
+    --hairline: #e0e0e0;
+    --canvas: #ffffff;
+    --canvas-parchment: #f5f5f7;
+    --surface-tile-1: #272729;
+    --surface-black: #000000;
+    --on-primary: #ffffff;
+    --on-dark: #ffffff;
+
+    --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    --font-text: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+
+    --radius-pill: 9999px;
+    --radius-lg: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    font-family: var(--font-text);
+    color: var(--ink);
+  }
+
+  /* components.global-nav */
+  .global-nav {
+    height: 44px;
+    background: var(--surface-black);
+    color: var(--on-dark);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    font-family: var(--font-text);
+    font-size: 12px;
+    letter-spacing: -0.12px;
+  }
+
+  .layout {
+    display: flex;
+    min-height: calc(100vh - 44px);
+  }
+
+  /* components.product-tile-dark — left brand panel */
+  .brand-panel {
+    flex: 1 1 50%;
+    background: var(--surface-tile-1);
+    color: var(--on-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px;
+  }
+
+  .brand-panel .eyebrow {
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.224px;
+    color: var(--primary-on-dark);
+    margin: 0 0 16px;
+  }
+
+  /* typography.display-lg */
+  .brand-panel h1 {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0;
+    margin: 0 0 20px;
+    max-width: 420px;
+  }
+
+  /* typography.lead */
+  .brand-panel p {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: 0.196px;
+    color: var(--body-muted);
+    margin: 0;
+    max-width: 420px;
+  }
+
+  /* components.button-primary reused for inline link on dark surface */
+  .brand-panel a {
+    margin-top: 32px;
+    display: inline-block;
+    font-family: var(--font-text);
+    font-size: 17px;
+    color: var(--primary-on-dark);
+    text-decoration: none;
+  }
+
+  /* right form panel */
+  .form-panel {
+    flex: 1 1 50%;
+    background: var(--canvas-parchment);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+
+  /* components.store-utility-card grammar */
+  .card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    padding: 48px 32px 40px;
+  }
+
+  .heading {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  /* typography.tagline */
+  .heading h2 {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.19;
+    letter-spacing: 0.231px;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+
+  /* typography.caption */
+  .heading p {
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.43;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-48);
+    margin: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* typography.caption-strong */
+  label {
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.29;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-80);
+    padding-left: 4px;
+  }
+
+  /* components.search-input grammar reused for text fields */
+  .input-pill {
+    width: 100%;
+    height: 44px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-pill);
+    background: var(--canvas);
+    padding: 12px 20px;
+    font-family: var(--font-text);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: -0.374px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .input-pill::placeholder {
+    color: var(--ink-muted-48);
+  }
+
+  .input-pill:focus {
+    border-color: var(--primary-focus);
+  }
+
+  .actions {
+    margin-top: 4px;
+    display: flex;
+    gap: 12px;
+  }
+
+  /* components.button-primary */
+  .btn-primary {
+    flex: 1;
+    height: 44px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--primary);
+    color: var(--on-primary);
+    font-family: var(--font-text);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: -0.374px;
+    cursor: pointer;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.95);
+  }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--primary-focus);
+    outline-offset: 2px;
+  }
+
+  /* components.button-secondary-pill */
+  .btn-secondary {
+    flex: 1;
+    height: 44px;
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--primary);
+    font-family: var(--font-text);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: -0.374px;
+    cursor: pointer;
+  }
+
+  .btn-secondary:active {
+    transform: scale(0.95);
+  }
+
+  /* Responsive: collapse to single column on narrow / mobile-web viewports */
+  @media (max-width: 833px) {
+    .layout {
+      flex-direction: column;
+    }
+
+    .brand-panel {
+      padding: 48px 32px;
+      text-align: center;
+      align-items: center;
+    }
+
+    .brand-panel h1,
+    .brand-panel p {
+      max-width: none;
+    }
+
+    .form-panel {
+      padding: 32px 16px 48px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .actions {
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="global-nav">Health Platform</div>
+  <div class="layout">
+    <section class="brand-panel">
+      <p class="eyebrow">HEALTH PLATFORM</p>
+      <h1>회원 건강정보를<br>한눈에 확인하세요</h1>
+      <p>실시간 심박, 혈압, 혈당, 걸음수 데이터를 의사와 환자가 함께 확인할 수 있는 통합 관리 플랫폼입니다.</p>
+    </section>
+    <section class="form-panel">
+      <div class="card">
+        <div class="heading">
+          <h2>로그인</h2>
+          <p>환자와 의사 모두 이용할 수 있어요</p>
+        </div>
+        <form>
+          <div class="field-group">
+            <label for="w-id">아이디</label>
+            <input id="w-id" class="input-pill" type="text" name="id" placeholder="아이디" autocomplete="username">
+          </div>
+          <div class="field-group">
+            <label for="w-pass">비밀번호</label>
+            <input id="w-pass" class="input-pill" type="password" name="password" placeholder="비밀번호" autocomplete="current-password">
+          </div>
+          <div class="actions">
+            <button class="btn-primary" type="submit">로그인</button>
+            <button class="btn-secondary" type="button">회원가입</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

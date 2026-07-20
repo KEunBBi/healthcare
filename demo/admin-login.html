@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 로그인</title>
+<style>
+  /* Tokens sourced from docs/DESIGN-apple.md */
+  :root {
+    --primary: #0066cc;          /* colors.primary — Action Blue */
+    --primary-focus: #0071e3;    /* colors.primary-focus */
+    --ink: #1d1d1f;              /* colors.ink */
+    --ink-muted-80: #333333;
+    --ink-muted-48: #7a7a7a;
+    --hairline: #e0e0e0;
+    --canvas: #ffffff;
+    --canvas-parchment: #f5f5f7;
+    --on-primary: #ffffff;
+
+    --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    --font-text: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+
+    --radius-pill: 9999px;
+    --radius-lg: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--canvas-parchment); /* colors.canvas-parchment — page canvas */
+    font-family: var(--font-text);
+    color: var(--ink);
+  }
+
+  /* store-utility-card grammar: white canvas, hairline border, rounded-lg, no shadow */
+  .card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    padding: 48px 32px 40px;
+  }
+
+  .heading {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  /* typography.tagline — 21px / 600 / 1.19 / 0.231px */
+  .heading h1 {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.19;
+    letter-spacing: 0.231px;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+
+  /* typography.caption — 14px / 400 / 1.43 / -0.224px */
+  .heading p {
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.43;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-48);
+    margin: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* typography.caption-strong — 14px / 600 / 1.29 / -0.224px */
+  label {
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.29;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-80);
+    padding-left: 4px;
+  }
+
+  /* components.search-input — pill input grammar reused for text fields */
+  .input-pill {
+    width: 100%;
+    height: 44px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-pill);
+    background: var(--canvas);
+    padding: 12px 20px;
+    font-family: var(--font-text);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.47;
+    letter-spacing: -0.374px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .input-pill::placeholder {
+    color: var(--ink-muted-48);
+  }
+
+  .input-pill:focus {
+    border-color: var(--primary-focus);
+  }
+
+  /* components.button-primary — Action Blue pill CTA */
+  .btn-primary {
+    margin-top: 4px;
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--primary);
+    color: var(--on-primary);
+    font-family: var(--font-text);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.374px;
+    cursor: pointer;
+  }
+
+  /* components.button-primary-active — scale(0.95) is the only system micro-interaction */
+  .btn-primary:active {
+    transform: scale(0.95);
+  }
+
+  /* components.button-primary-focus — 2px solid outline */
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--primary-focus);
+    outline-offset: 2px;
+  }
+
+  .signup-row {
+    margin-top: 28px;
+    text-align: center;
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.43;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-48);
+  }
+
+  /* components.text-link — Action Blue, no chrome */
+  .text-link {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 4px;
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: -0.224px;
+    color: var(--primary);
+    cursor: pointer;
+  }
+
+  .text-link:active {
+    transform: scale(0.95);
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="heading">
+      <h1>관리자 로그인</h1>
+      <p>회원 건강정보 관리 시스템</p>
+    </div>
+    <form>
+      <div class="field-group">
+        <label for="username">아이디</label>
+        <input id="username" class="input-pill" type="text" name="username" placeholder="아이디" autocomplete="username">
+      </div>
+      <div class="field-group">
+        <label for="password">암호</label>
+        <input id="password" class="input-pill" type="password" name="password" placeholder="암호" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" type="submit">로그인</button>
+    </form>
+    <div class="signup-row">
+      계정이 없으신가요?
+      <button class="text-link" type="button">가입하기</button>
+    </div>
+  </main>
+</body>
+</html>

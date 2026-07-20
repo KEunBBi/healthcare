@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>로그인 - Mobile (React Native)</title>
+<style>
+  /* Tokens sourced from docs/DESIGN-apple.md */
+  :root {
+    --primary: #0066cc;
+    --primary-focus: #0071e3;
+    --ink: #1d1d1f;
+    --ink-muted-80: #333333;
+    --ink-muted-48: #7a7a7a;
+    --hairline: #e0e0e0;
+    --canvas: #ffffff;
+    --canvas-parchment: #f5f5f7;
+    --on-primary: #ffffff;
+
+    --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    --font-text: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+
+    --radius-pill: 9999px;
+    --radius-lg: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    background: #e5e5e7; /* preview backdrop, not part of the screen itself */
+    font-family: var(--font-text);
+  }
+
+  /* Device frame — presentation aid only, not part of the design system */
+  .device {
+    width: 390px;
+    height: 844px;
+    background: var(--ink);
+    border-radius: 52px;
+    padding: 14px;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: var(--canvas-parchment);
+    border-radius: 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-bar {
+    height: 47px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    font-family: var(--font-text);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .status-bar .icons {
+    font-size: 12px;
+    color: var(--ink);
+    letter-spacing: 1px;
+  }
+
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 28px;
+  }
+
+  .heading {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  /* typography.display-md-ish scaled for mobile heading */
+  .heading h1 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.14;
+    letter-spacing: -0.28px;
+    color: var(--ink);
+    margin: 0 0 8px;
+  }
+
+  /* typography.caption */
+  .heading p {
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.43;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-48);
+    margin: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* typography.caption-strong */
+  label {
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.29;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-80);
+    padding-left: 4px;
+  }
+
+  /* components.search-input grammar reused for text fields */
+  .input-pill {
+    width: 100%;
+    height: 48px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-pill);
+    background: var(--canvas);
+    padding: 12px 20px;
+    font-family: var(--font-text);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: -0.374px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .input-pill::placeholder {
+    color: var(--ink-muted-48);
+  }
+
+  .input-pill:focus {
+    border-color: var(--primary-focus);
+  }
+
+  .actions {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* components.button-primary */
+  .btn-primary {
+    width: 100%;
+    height: 48px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--primary);
+    color: var(--on-primary);
+    font-family: var(--font-text);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: -0.374px;
+    cursor: pointer;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.95);
+  }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--primary-focus);
+    outline-offset: 2px;
+  }
+
+  /* components.button-secondary-pill — the "second CTA" grammar */
+  .btn-secondary {
+    width: 100%;
+    height: 48px;
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--primary);
+    font-family: var(--font-text);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: -0.374px;
+    cursor: pointer;
+  }
+
+  .btn-secondary:active {
+    transform: scale(0.95);
+  }
+
+  .home-indicator {
+    height: 34px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .home-indicator::after {
+    content: "";
+    width: 134px;
+    height: 5px;
+    border-radius: var(--radius-pill);
+    background: var(--ink);
+    opacity: 0.3;
+  }
+</style>
+</head>
+<body>
+  <div class="device">
+    <div class="screen">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span class="icons">•••</span>
+      </div>
+      <div class="content">
+        <div class="heading">
+          <h1>로그인</h1>
+          <p>환자와 의사 모두 이용할 수 있어요</p>
+        </div>
+        <form>
+          <div class="field-group">
+            <label for="m-id">아이디</label>
+            <input id="m-id" class="input-pill" type="text" name="id" placeholder="아이디" autocomplete="username">
+          </div>
+          <div class="field-group">
+            <label for="m-pass">비밀번호</label>
+            <input id="m-pass" class="input-pill" type="password" name="password" placeholder="비밀번호" autocomplete="current-password">
+          </div>
+          <div class="actions">
+            <button class="btn-primary" type="submit">로그인</button>
+            <button class="btn-secondary" type="button">회원가입</button>
+          </div>
+        </form>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+</body>
+</html>

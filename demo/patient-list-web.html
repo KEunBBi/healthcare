@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>환자 목록 - Web (React)</title>
+<style>
+  /* Tokens sourced from docs/DESIGN-apple.md */
+  :root {
+    --primary: #0066cc;
+    --primary-focus: #0071e3;
+    --ink: #1d1d1f;
+    --ink-muted-80: #333333;
+    --ink-muted-48: #7a7a7a;
+    --divider-soft: #f0f0f0;
+    --hairline: #e0e0e0;
+    --canvas: #ffffff;
+    --canvas-parchment: #f5f5f7;
+    --surface-black: #000000;
+    --on-primary: #ffffff;
+    --on-dark: #ffffff;
+
+    --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    --font-text: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+
+    --radius-pill: 9999px;
+    --radius-lg: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--canvas-parchment);
+    font-family: var(--font-text);
+    color: var(--ink);
+  }
+
+  /* components.global-nav */
+  .global-nav {
+    height: 44px;
+    background: var(--surface-black);
+    color: var(--on-dark);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    font-size: 12px;
+    letter-spacing: -0.12px;
+  }
+
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* header row: title + search + gender filter, side by side on wide screens */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  /* typography.display-md */
+  .toolbar h1 {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.374px;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* components.search-input */
+  .search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 16px;
+    width: 15px;
+    height: 15px;
+    stroke: var(--ink-muted-48);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .search-input {
+    width: 240px;
+    height: 44px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-pill);
+    background: var(--canvas);
+    padding: 12px 20px 12px 40px;
+    font-family: var(--font-text);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: -0.224px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .search-input::placeholder {
+    color: var(--ink-muted-48);
+  }
+
+  .search-input:focus {
+    border-color: var(--primary-focus);
+  }
+
+  /* components.configurator-option-chip — gender filter */
+  .chip-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .chip {
+    height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-pill);
+    background: var(--canvas);
+    font-family: var(--font-text);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: -0.224px;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  /* components.configurator-option-chip-selected */
+  .chip.selected {
+    border: 2px solid var(--primary-focus);
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  .chip:active {
+    transform: scale(0.95);
+  }
+
+  /* components.store-utility-card — table shell */
+  .list-card {
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .list-head {
+    display: grid;
+    grid-template-columns: 64px 1fr 120px 160px;
+    gap: 16px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--hairline);
+    font-family: var(--font-text);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-48);
+  }
+
+  .patient-row {
+    display: grid;
+    grid-template-columns: 64px 1fr 120px 160px;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--divider-soft);
+    cursor: pointer;
+  }
+
+  .patient-row:last-child {
+    border-bottom: none;
+  }
+
+  .patient-row:active {
+    background: var(--canvas-parchment);
+  }
+
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    background: var(--canvas-parchment);
+    border: 1px solid var(--hairline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-text);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-muted-80);
+  }
+
+  /* typography.body-strong */
+  .patient-name {
+    font-family: var(--font-text);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.374px;
+    color: var(--ink);
+  }
+
+  /* typography.body */
+  .patient-gender,
+  .patient-birth {
+    font-family: var(--font-text);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: -0.224px;
+    color: var(--ink-muted-80);
+  }
+
+  .gender-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--canvas-parchment);
+    color: var(--ink-muted-80);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Responsive: narrower toolbar and column widths, hide birth column on small screens */
+  @media (max-width: 833px) {
+    .page {
+      padding: 32px 20px 56px;
+    }
+
+    .toolbar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .search-input {
+      width: 100%;
+    }
+
+    .filters {
+      width: 100%;
+    }
+
+    .list-head,
+    .patient-row {
+      grid-template-columns: 48px 1fr 80px;
+    }
+
+    .patient-birth {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .list-head span:nth-child(3) {
+      display: none;
+    }
+
+    .list-head,
+    .patient-row {
+      grid-template-columns: 44px 1fr;
+    }
+
+    .patient-gender {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="global-nav">Health Platform</div>
+  <div class="page">
+    <div class="toolbar">
+      <h1>환자 목록</h1>
+      <div class="filters">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input class="search-input" type="text" placeholder="환자 이름 검색">
+        </div>
+        <div class="chip-row">
+          <button class="chip selected" type="button">전체</button>
+          <button class="chip" type="button">남</button>
+          <button class="chip" type="button">여</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-card">
+      <div class="list-head">
+        <span></span>
+        <span>이름</span>
+        <span>성별</span>
+        <span>생년월일</span>
+      </div>
+
+      <div class="patient-row">
+        <div class="avatar">박</div>
+        <div class="patient-name">박지훈</div>
+        <div class="patient-gender"><span class="gender-badge">남</span></div>
+        <div class="patient-birth">1981.03.14</div>
+      </div>
+      <div class="patient-row">
+        <div class="avatar">김</div>
+        <div class="patient-name">김서연</div>
+        <div class="patient-gender"><span class="gender-badge">여</span></div>
+        <div class="patient-birth">1975.11.02</div>
+      </div>
+      <div class="patient-row">
+        <div class="avatar">이</div>
+        <div class="patient-name">이도윤</div>
+        <div class="patient-gender"><span class="gender-badge">남</span></div>
+        <div class="patient-birth">1990.06.27</div>
+      </div>
+      <div class="patient-row">
+        <div class="avatar">최</div>
+        <div class="patient-name">최유진</div>
+        <div class="patient-gender"><span class="gender-badge">여</span></div>
+        <div class="patient-birth">1988.09.09</div>
+      </div>
+      <div class="patient-row">
+        <div class="avatar">정</div>
+        <div class="patient-name">정민수</div>
+        <div class="patient-gender"><span class="gender-badge">남</span></div>
+        <div class="patient-birth">1965.01.30</div>
+      </div>
+      <div class="patient-row">
+        <div class="avatar">한</div>
+        <div class="patient-name">한소희</div>
+        <div class="patient-gender"><span class="gender-badge">여</span></div>
+        <div class="patient-birth">1999.04.18</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
