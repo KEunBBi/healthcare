@@ -55,6 +55,7 @@
 - `DB_HOST`, `DB_PORT`, `DB_NAME`
 - `SIMULATOR_URL`, `SIMULATOR_RECONNECT_ATTEMPTS`, `SIMULATOR_TIMEOUT_MS`
 - `SLACK_WEBHOOK_URL`
+- `CORS_ORIGINS` — 학생별로 배포된 health-web 도메인을 포함한 콤마 구분 origin 목록 (예: `http://localhost:5173,https://fe000.ys.iranglab.com`)
 
 ## 4. 환경변수 매핑표
 
@@ -76,6 +77,7 @@
 | `SIMULATOR_RECONNECT_ATTEMPTS` | Variable | `SIMULATOR_RECONNECT_ATTEMPTS` | 현재 코드에서는 아직 사용하지 않지만, 추후 구현을 대비해 그대로 전달 |
 | `SIMULATOR_TIMEOUT_MS` | Variable | `SIMULATOR_TIMEOUT_MS` | 위와 동일 |
 | `SLACK_WEBHOOK_URL` | Variable | `SLACK_WEBHOOK_URL` | |
+| `CORS_ORIGINS` | Variable | `CORS_ORIGINS` | health-web이 RefreshToken을 쿠키로 전송하므로(`auth.controller.ts`) 와일드카드 origin을 쓸 수 없다. 로컬 개발(`http://localhost:5173`)과 배포된 health-web 도메인을 콤마로 나열한다 |
 | `AI_AGENT_BASE_URL` | **고정값** | (Secret/Variable 없음) | `http://localhost:8000` 로 고정. `network_mode: host` 덕분에 서버에 떠 있는 health-ai에 `localhost`로 접근 가능 |
 
 > `.env.example`에는 있지만 위 표에도 없는 값은 없습니다. GitHub Secret/Variable에 없는 값은 `AI_AGENT_BASE_URL` 하나뿐이며, 이 값은 학생마다 달라질 이유가 없어 고정값으로 둡니다.

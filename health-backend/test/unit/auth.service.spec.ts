@@ -13,7 +13,7 @@ jest.mock('bcryptjs');
 describe('AuthService', () => {
   let authService: AuthService;
   let userRepository: jest.Mocked<Pick<Repository<UserEntity>, 'findOneBy'>>;
-  let jwtService: jest.Mocked<Pick<JwtService, 'sign' | 'verifyAsync'>>;
+  let jwtService: jest.Mocked<Pick<JwtService, 'sign' | 'verifyAsync' | 'decode'>>;
 
   const mockUser: UserEntity = {
     userId: 'user_001',
@@ -29,7 +29,11 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     userRepository = { findOneBy: jest.fn() };
-    jwtService = { sign: jest.fn().mockReturnValue('signed-token'), verifyAsync: jest.fn() };
+    jwtService = {
+      sign: jest.fn().mockReturnValue('signed-token'),
+      verifyAsync: jest.fn(),
+      decode: jest.fn().mockReturnValue({ exp: Math.floor(Date.now() / 1000) + 3600 }),
+    };
 
     const configValues: Record<string, string> = {
       JWT_ACCESS_SECRET: 'access-secret',
@@ -88,7 +92,7 @@ describe('AuthService', () => {
       jwtService.verifyAsync.mockResolvedValue({ userid: 'user_001', name: '김민준', api_key: 'key_001' });
       userRepository.findOneBy.mockResolvedValue(mockUser);
 
-      const result = await authService.refresh({ refreshToken: 'valid-refresh-token' });
+      const result = await authService.refresh('valid-refresh-token');
 
       expect(result).toEqual({ accessToken: 'signed-token' });
     });
@@ -96,7 +100,7 @@ describe('AuthService', () => {
     it('RefreshToken 검증에 실패하면 INVALID_REFRESH_TOKEN을 던진다', async () => {
       jwtService.verifyAsync.mockRejectedValue(new Error('jwt expired'));
 
-      await expect(authService.refresh({ refreshToken: 'expired-token' })).rejects.toMatchObject({
+      await expect(authService.refresh('expired-token')).rejects.toMatchObject({
         code: 'INVALID_REFRESH_TOKEN',
       });
     });
@@ -105,7 +109,7 @@ describe('AuthService', () => {
       jwtService.verifyAsync.mockResolvedValue({ userid: 'deleted-user', name: 'x', api_key: null });
       userRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(authService.refresh({ refreshToken: 'valid-but-orphaned' })).rejects.toMatchObject({
+      await expect(authService.refresh('valid-but-orphaned')).rejects.toMatchObject({
         code: 'INVALID_REFRESH_TOKEN',
       });
     });

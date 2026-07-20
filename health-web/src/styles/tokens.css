@@ -1,0 +1,43 @@
+/*
+ * ../../docs/DESIGN-apple.md 토큰을 CSS 변수로 매핑한다. 값은 그 문서의 colors/typography/rounded/spacing과
+ * 1:1로 대응하며 임의로 새 값을 추가하지 않는다. 단, status-success/warning/danger는 DESIGN-apple.md에
+ * 정의되어 있지 않은 건강데이터 상태 배지 전용 보조 색상이다(문서가 마케팅 사이트 팔레트만 다루기 때문).
+ */
+:root {
+  --color-primary: #0066cc;
+  --color-primary-focus: #0071e3;
+  --color-primary-on-dark: #2997ff;
+  --color-ink: #1d1d1f;
+  --color-body-on-dark: #ffffff;
+  --color-body-muted: #cccccc;
+  --color-ink-muted-80: #333333;
+  --color-ink-muted-48: #7a7a7a;
+  --color-divider-soft: #f0f0f0;
+  --color-hairline: #e0e0e0;
+  --color-canvas: #ffffff;
+  --color-canvas-parchment: #f5f5f7;
+  --color-surface-pearl: #fafafc;
+  --color-on-primary: #ffffff;
+
+  --font-display: 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  --font-text: 'SF Pro Text', system-ui, -apple-system, sans-serif;
+
+  --radius-xs: 5px;
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 17px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  /* 건강데이터 상태 배지 전용 보조 색상 (DESIGN-apple.md 미정의) */
+  --color-status-success: #1a8754;
+  --color-status-warning: #c77700;
+  --color-status-danger: #d92d20;
+}

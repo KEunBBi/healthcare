@@ -18,7 +18,7 @@
 - DB: PostgreSQL
 - 시뮬레이터 연동: WebSocket (Socket.IO client)
 - 프론트엔드 실시간 전달: WebSocket (Socket.IO gateway)
-- 인증: JWT
+- 인증: JWT. AccessToken은 응답 바디로, RefreshToken은 `cookie-parser` + HttpOnly 쿠키로 발급한다(`API_SPEC.md` 1.1). 쿠키를 쓰므로 CORS는 `origin: true`가 아니라 `CORS_ORIGINS`(env, 콤마 구분) 화이트리스트 + `credentials: true`로 구성한다(`main.ts`) — health-web·health-mobile 배포 도메인을 여기에 등록해야 한다.
 
 ## 2. DB 연결
 - 접속정보: `211.253.27.76:5432`, database `db02`, user `user02`

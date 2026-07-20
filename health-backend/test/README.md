@@ -27,7 +27,7 @@ VSCode 확장 [REST Client](https://marketplace.visualstudio.com/items?itemName=
 
 - [`http/auth.http`](./http/auth.http) — 로그인/재발급
   - 각 요청 위에 뜨는 **Send Request** 링크를 클릭해 실행한다.
-  - 1번(로그인) 요청은 `# @name login`으로 이름이 붙어 있어, 4번(재발급)·6번(인증 확인) 요청이 `{{login.response.body.$.data.refreshToken}}` / `{{login.response.body.$.data.accessToken}}`으로 응답값을 자동으로 이어받는다. 즉 1번을 먼저 실행한 뒤 4번·6번을 실행해야 한다.
+  - 1번(로그인) 요청은 `# @name login`으로 이름이 붙어 있어, 6번(인증 확인) 요청이 `{{login.response.body.$.data.accessToken}}`으로 응답값을 자동으로 이어받는다. RefreshToken은 응답 바디가 아니라 `Set-Cookie`로 내려오며 REST Client가 쿠키 저장소에 자동 보관하므로, 4번(재발급) 요청은 Body 없이 쿠키만으로 동작한다. 즉 1번을 먼저 실행한 뒤 4번·6번을 실행해야 한다.
 - [`http/members.http`](./http/members.http) — 회원목록·상세조회·건강데이터 조회
   - 1번(의사 로그인)·2번(환자 로그인)을 먼저 실행한 뒤, 3~7번에서 각 역할별 토큰(`{{loginDoctor...}}` / `{{loginPatient...}}`)으로 `GET /members`를 호출·비교해본다.
   - 8~11번은 `GET /members/:userId` 상세조회다. 8·9번은 정상 조회(환자 자기 자신 / 의사가 임의 회원), 10번은 환자가 타인을 조회할 때 403, 11번은 존재하지 않는 회원아이디로 404가 나는지 확인한다.
@@ -50,31 +50,25 @@ http://localhost:3030/api/docs
 ### Mac / Linux (bash, zsh)
 
 ```bash
-# 로그인
-curl -s -X POST http://localhost:3030/api/auth/login \
+# 로그인 (-c로 Set-Cookie의 refreshToken을 cookie.txt에 저장)
+curl -s -c cookie.txt -X POST http://localhost:3030/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"id":"user_001","passwd":"user_001123!"}'
 
-# 위 응답의 data.refreshToken 값을 REFRESH_TOKEN에 넣고 재발급
-REFRESH_TOKEN="여기에_refreshToken_붙여넣기"
-curl -s -X POST http://localhost:3030/api/auth/refresh \
-  -H "Content-Type: application/json" \
-  -d "{\"refreshToken\":\"$REFRESH_TOKEN\"}"
+# 재발급 (-b로 저장해둔 쿠키를 그대로 전송, Body 불필요)
+curl -s -b cookie.txt -X POST http://localhost:3030/api/auth/refresh
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-# 로그인
-curl.exe -X POST http://localhost:3030/api/auth/login `
+# 로그인 (-c로 Set-Cookie의 refreshToken을 cookie.txt에 저장)
+curl.exe -c cookie.txt -X POST http://localhost:3030/api/auth/login `
   -H "Content-Type: application/json" `
   -d '{\"id\":\"user_001\",\"passwd\":\"user_001123!\"}'
 
-# 위 응답의 data.refreshToken 값을 $refreshToken에 넣고 재발급
-$refreshToken = "여기에_refreshToken_붙여넣기"
-curl.exe -X POST http://localhost:3030/api/auth/refresh `
-  -H "Content-Type: application/json" `
-  -d "{\`"refreshToken\`":\`"$refreshToken\`"}"
+# 재발급 (-b로 저장해둔 쿠키를 그대로 전송, Body 불필요)
+curl.exe -b cookie.txt -X POST http://localhost:3030/api/auth/refresh
 ```
 > PowerShell의 `curl`은 기본적으로 `Invoke-WebRequest` 별칭이므로, 실제 curl.exe를 쓰려면 위처럼 `curl.exe`로 명시한다. 큰따옴표 이스케이프가 번거로우면 `Invoke-RestMethod`를 쓰는 것도 방법이다:
 > ```powershell

@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -8,7 +9,15 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors({ origin: true, credentials: true });
+  // RefreshToken을 HttpOnly 쿠키로 내려주므로(auth.controller.ts), origin은 credentials와 함께 쓸 수 없는
+  // 와일드카드(true) 대신 명시적 화이트리스트여야 한다. CORS_ORIGINS는 콤마로 구분된 origin 목록이다
+  // (예: "http://localhost:5173,https://fe000.ys.iranglab.com" — 배포 도메인은 학생별로 다르므로 실제 값으로 교체).
+  const corsOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  app.use(cookieParser());
+  app.enableCors({ origin: corsOrigins, credentials: true });
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalFilters(new HttpExceptionFilter());

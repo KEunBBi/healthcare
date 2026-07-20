@@ -8,7 +8,6 @@ import { UserEntity } from '../entities';
 import { AppException } from '../common/exceptions/app.exception';
 import { toUserDto } from '../common/user-mapper';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { JwtPayload } from './jwt-payload';
 
 @Injectable()
@@ -30,17 +29,19 @@ export class AuthService {
       throw AppException.invalidCredentials();
     }
 
+    const refreshToken = this.signRefreshToken(user);
     return {
       accessToken: this.signAccessToken(user),
-      refreshToken: this.signRefreshToken(user),
+      refreshToken,
+      refreshTokenMaxAgeMs: this.getTokenMaxAgeMs(refreshToken),
       user: { ...toUserDto(user), apiKey: user.apiKey },
     };
   }
 
-  async refresh(dto: RefreshTokenDto) {
+  async refresh(refreshToken: string) {
     let payload: JwtPayload;
     try {
-      payload = await this.jwtService.verifyAsync<JwtPayload>(dto.refreshToken, {
+      payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
         secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
       });
     } catch {
@@ -53,6 +54,12 @@ export class AuthService {
     }
 
     return { accessToken: this.signAccessToken(user) };
+  }
+
+  /** 쿠키에 심을 RefreshToken의 만료시각(exp, 초 단위 UNIX)을 읽어 Set-Cookie maxAge(ms)로 환산한다. */
+  private getTokenMaxAgeMs(token: string): number {
+    const { exp } = this.jwtService.decode<JwtPayload & { exp: number }>(token);
+    return exp * 1000 - Date.now();
   }
 
   private buildPayload(user: UserEntity): JwtPayload {

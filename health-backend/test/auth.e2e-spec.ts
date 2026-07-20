@@ -1,5 +1,6 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
@@ -19,6 +20,7 @@ describe('Auth API (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.use(cookieParser());
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     app.useGlobalFilters(new HttpExceptionFilter());
@@ -31,7 +33,7 @@ describe('Auth API (e2e)', () => {
   });
 
   describe('POST /api/auth/login', () => {
-    it('올바른 id/passwd면 accessToken·refreshToken·user를 반환한다', async () => {
+    it('올바른 id/passwd면 accessToken·user를 반환하고 refreshToken은 HttpOnly 쿠키로 내려준다', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/auth/login')
         .send({ id: 'user_001', passwd: 'user_001123!' })
@@ -39,8 +41,13 @@ describe('Auth API (e2e)', () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.accessToken).toEqual(expect.any(String));
-      expect(response.body.data.refreshToken).toEqual(expect.any(String));
+      expect(response.body.data.refreshToken).toBeUndefined();
       expect(response.body.data.user).toMatchObject({ userId: 'user_001', role: 'PATIENT' });
+
+      const setCookieHeader = response.headers['set-cookie'] as unknown as string[];
+      expect(
+        setCookieHeader.some((cookie) => cookie.startsWith('refreshToken=') && cookie.includes('HttpOnly')),
+      ).toBe(true);
     });
 
     it('비밀번호가 틀리면 401 INVALID_CREDENTIALS를 반환한다', async () => {
@@ -62,25 +69,32 @@ describe('Auth API (e2e)', () => {
   });
 
   describe('POST /api/auth/refresh', () => {
-    it('로그인으로 발급받은 RefreshToken이면 새 accessToken을 반환한다', async () => {
+    it('로그인으로 발급받은 RefreshToken 쿠키가 있으면 새 accessToken을 반환한다', async () => {
       const loginResponse = await request(app.getHttpServer())
         .post('/api/auth/login')
         .send({ id: 'user_001', passwd: 'user_001123!' })
         .expect(201);
+      const refreshTokenCookie = loginResponse.headers['set-cookie'];
 
       const response = await request(app.getHttpServer())
         .post('/api/auth/refresh')
-        .send({ refreshToken: loginResponse.body.data.refreshToken })
+        .set('Cookie', refreshTokenCookie)
         .expect(201);
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.accessToken).toEqual(expect.any(String));
     });
 
-    it('유효하지 않은 토큰이면 401 INVALID_REFRESH_TOKEN을 반환한다', async () => {
+    it('RefreshToken 쿠키가 없으면 401 INVALID_REFRESH_TOKEN을 반환한다', async () => {
+      const response = await request(app.getHttpServer()).post('/api/auth/refresh').expect(401);
+
+      expect(response.body.error.code).toBe('INVALID_REFRESH_TOKEN');
+    });
+
+    it('RefreshToken 쿠키가 유효하지 않으면 401 INVALID_REFRESH_TOKEN을 반환한다', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/auth/refresh')
-        .send({ refreshToken: 'not-a-valid-token' })
+        .set('Cookie', ['refreshToken=not-a-valid-token'])
         .expect(401);
 
       expect(response.body.error.code).toBe('INVALID_REFRESH_TOKEN');
