@@ -1,0 +1,12 @@
+server {
+    listen ${FRONTEND_PORT};
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # React Router(client-side routing) 새로고침/딥링크 대응: 없는 경로는 index.html로 폴백한다.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

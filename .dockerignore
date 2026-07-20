@@ -1,0 +1,28 @@
+# health-web 이미지 빌드 컨텍스트(모노레포 루트)에서 불필요한 항목을 제외한다.
+# health-backend/health-mobile/health-ai가 나중에 같은 루트 컨텍스트를 쓰게 되더라도
+# 아래 규칙은 공통으로 안전하다.
+
+.git
+.github
+
+# 이 컨텍스트에서 실제로 필요한 것은 health-web/, shared/ 뿐이다.
+health-backend
+health-mobile
+health-ai
+demo
+docs
+
+# 언어 공통
+**/node_modules
+**/dist
+**/build
+**/*.log
+
+# 비밀정보 (빌드 시점 값은 docker-compose.yml의 build.args로만 주입한다)
+**/.env
+**/.env.*
+!**/.env.example
+
+# 문서/설정 (이미지에 불필요)
+**/*.md
+**/.git

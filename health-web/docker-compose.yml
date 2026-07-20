@@ -1,0 +1,17 @@
+services:
+  health-web:
+    build:
+      # 모노레포 루트를 컨텍스트로 써야 ../shared/를 이미지에 포함시킬 수 있다.
+      context: ..
+      dockerfile: health-web/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_WS_BASE_URL: ${VITE_WS_BASE_URL}
+    image: health-web-${FRONTEND_PORT}:latest
+    container_name: health-web-${FRONTEND_PORT}
+    restart: unless-stopped
+    # 학생별 FRONTEND_PORT를 그대로 호스트 포트로 쓰기 때문에 별도 포트 매핑이 필요 없다.
+    network_mode: host
+    environment:
+      # nginx가 실제로 바인딩할 포트. VITE_* 값과 달리 컨테이너 런타임에 주입된다.
+      FRONTEND_PORT: ${FRONTEND_PORT}

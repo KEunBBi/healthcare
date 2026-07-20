@@ -1,0 +1,53 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'health-web/**'
+      - 'shared/**'
+      - '.dockerignore'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # health-web/ 소스와 health-web이 참조하는 shared/를 학생별 고유 경로(FRONTEND_PORT 네임스페이스)로 복사한다.
+      # 서버에서도 health-web/과 shared/를 형제 디렉토리로 유지해야
+      # docker-compose.yml의 build.context: .. 가 shared/를 찾을 수 있다.
+      - name: Copy source to deploy server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          port: ${{ vars.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: 'health-web/*,shared/*,.dockerignore'
+          target: '~/deploy/health-web-${{ vars.FRONTEND_PORT }}'
+          rm: true
+
+      # 서버에 .env 파일을 만들지 않는다. Secrets/Variables를 SSH 세션의 환경변수로 주입해
+      # docker compose가 그 값을 build args(VITE_*)/런타임 환경변수(FRONTEND_PORT)로 그대로 읽어
+      # 컨테이너를 기동하도록 한다.
+      - name: Build and start container
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          port: ${{ vars.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: >-
+            FRONTEND_PORT,VITE_API_BASE_URL,VITE_WS_BASE_URL
+          script: |
+            set -e
+            cd ~/deploy/health-web-${FRONTEND_PORT}/health-web
+            docker compose -p health-web-${FRONTEND_PORT} up -d --build
+        env:
+          FRONTEND_PORT: ${{ vars.FRONTEND_PORT }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_WS_BASE_URL: ${{ vars.VITE_WS_BASE_URL }}
