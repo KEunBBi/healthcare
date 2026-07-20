@@ -46,41 +46,41 @@
 **Secrets**
 - `SERVER_USER`, `SSH_KEY` — 배포 서버 SSH 접속 정보
 - `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`
-- `DB_USER`, `DB_PASSWORD`
+- `DATABASE_USER`, `DATABASE_PASSWORD`
 
 **Variables**
 - `SERVER_HOST`(`211.253.10.22`), `SERVER_PORT`(`22`)
 - `BACKEND_PORT` — 학생별 고유 포트, 이 문서의 네임스페이스 키
-- `JWT_ACCESS_TTL_SEC`, `JWT_REFRESH_TTL_SEC`
-- `DB_HOST`, `DB_PORT`, `DB_NAME`
-- `SIMULATOR_URL`, `SIMULATOR_RECONNECT_ATTEMPTS`, `SIMULATOR_TIMEOUT_MS`
+- `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`
+- `JWT_ACCESS_EXPIRES_IN`(예: `30m`), `JWT_REFRESH_EXPIRES_IN`(예: `14d`)
+- `SIMULATOR_WS_URL`
 - `SLACK_WEBHOOK_URL`
 - `CORS_ORIGINS` — 학생별로 배포된 health-web 도메인을 포함한 콤마 구분 origin 목록 (예: `http://localhost:5173,https://fe000.ys.iranglab.com`)
 
+> `BACKEND_PORT`·`SERVER_*`를 제외한 나머지는 이름이 모두 `health-backend/.env`(로컬 개발용)와 동일하다. 로컬 `.env`에 이미 값이 있다면 그대로 복사해 넣으면 된다.
+
 ## 4. 환경변수 매핑표
 
-앱이 실제로 읽는 환경변수(`src/**`에서 `process.env` / `ConfigService.get`으로 참조하는 이름)와 GitHub Secret/Variable을 아래처럼 연결합니다.
+앱이 실제로 읽는 환경변수(`src/**`에서 `process.env` / `ConfigService.get`으로 참조하는 이름)와 GitHub Secret/Variable을 아래처럼 연결합니다. `BACKEND_PORT`를 제외하면 **GitHub 이름 = 앱이 읽는 이름**으로 동일합니다.
 
 | 앱이 읽는 env 이름 | 값의 출처 | GitHub 이름 | 비고 |
 |---|---|---|---|
 | `PORT` | Variable | `BACKEND_PORT` | 네임스페이스 키. 컨테이너가 바인딩하는 포트 |
-| `DATABASE_HOST` | Variable | `DB_HOST` | |
-| `DATABASE_PORT` | Variable | `DB_PORT` | |
-| `DATABASE_NAME` | Variable | `DB_NAME` | |
-| `DATABASE_USER` | Secret | `DB_USER` | |
-| `DATABASE_PASSWORD` | Secret | `DB_PASSWORD` | |
+| `DATABASE_HOST` | Variable | `DATABASE_HOST` | |
+| `DATABASE_PORT` | Variable | `DATABASE_PORT` | |
+| `DATABASE_NAME` | Variable | `DATABASE_NAME` | |
+| `DATABASE_USER` | Secret | `DATABASE_USER` | |
+| `DATABASE_PASSWORD` | Secret | `DATABASE_PASSWORD` | |
 | `JWT_ACCESS_SECRET` | Secret | `JWT_ACCESS_SECRET` | |
-| `JWT_ACCESS_EXPIRES_IN` | Variable | `JWT_ACCESS_TTL_SEC` | `jsonwebtoken`은 순수 숫자 문자열의 단위를 인식하지 못하므로, compose에서 `${JWT_ACCESS_TTL_SEC}s` 처럼 뒤에 `s`(초)를 붙여서 넘깁니다 |
+| `JWT_ACCESS_EXPIRES_IN` | Variable | `JWT_ACCESS_EXPIRES_IN` | `30m`처럼 사람이 읽는 형식 그대로 전달한다(`jsonwebtoken`이 이 형식을 직접 해석하므로 초 단위로 변환할 필요가 없다) |
 | `JWT_REFRESH_SECRET` | Secret | `JWT_REFRESH_SECRET` | |
-| `JWT_REFRESH_EXPIRES_IN` | Variable | `JWT_REFRESH_TTL_SEC` | 위와 동일하게 `${JWT_REFRESH_TTL_SEC}s` 형태로 전달 |
-| `SIMULATOR_WS_URL` | Variable | `SIMULATOR_URL` | |
-| `SIMULATOR_RECONNECT_ATTEMPTS` | Variable | `SIMULATOR_RECONNECT_ATTEMPTS` | 현재 코드에서는 아직 사용하지 않지만, 추후 구현을 대비해 그대로 전달 |
-| `SIMULATOR_TIMEOUT_MS` | Variable | `SIMULATOR_TIMEOUT_MS` | 위와 동일 |
+| `JWT_REFRESH_EXPIRES_IN` | Variable | `JWT_REFRESH_EXPIRES_IN` | `14d`처럼 사람이 읽는 형식 그대로 전달 |
+| `SIMULATOR_WS_URL` | Variable | `SIMULATOR_WS_URL` | |
 | `SLACK_WEBHOOK_URL` | Variable | `SLACK_WEBHOOK_URL` | |
 | `CORS_ORIGINS` | Variable | `CORS_ORIGINS` | health-web이 RefreshToken을 쿠키로 전송하므로(`auth.controller.ts`) 와일드카드 origin을 쓸 수 없다. 로컬 개발(`http://localhost:5173`)과 배포된 health-web 도메인을 콤마로 나열한다 |
 | `AI_AGENT_BASE_URL` | **고정값** | (Secret/Variable 없음) | `http://localhost:8000` 로 고정. `network_mode: host` 덕분에 서버에 떠 있는 health-ai에 `localhost`로 접근 가능 |
 
-> `.env.example`에는 있지만 위 표에도 없는 값은 없습니다. GitHub Secret/Variable에 없는 값은 `AI_AGENT_BASE_URL` 하나뿐이며, 이 값은 학생마다 달라질 이유가 없어 고정값으로 둡니다.
+> GitHub Secret/Variable에 없는 값은 `AI_AGENT_BASE_URL` 하나뿐이며, 이 값은 학생마다 달라질 이유가 없어 고정값으로 둡니다. (`SIMULATOR_RECONNECT_ATTEMPTS`/`SIMULATOR_TIMEOUT_MS`는 앱 코드에서 아직 쓰지 않아 배포 파이프라인에서 제외했습니다.)
 
 ## 5. 파일 구성
 

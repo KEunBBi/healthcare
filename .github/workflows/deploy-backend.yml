@@ -30,6 +30,7 @@ jobs:
 
       # 서버에 .env 파일을 만들지 않고, Secrets/Variables를 SSH 세션의 환경변수로 주입해
       # docker compose가 그 값을 그대로 읽어 컨테이너를 기동하도록 한다.
+      # 이름은 health-backend/.env(로컬 개발용)와 동일하게 맞춰, 로컬 값을 그대로 복붙할 수 있게 한다.
       - name: Build and start container
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -38,27 +39,24 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_KEY }}
           envs: >-
-            BACKEND_PORT,DB_HOST,DB_PORT,DB_NAME,DB_USER,DB_PASSWORD,
-            JWT_ACCESS_SECRET,JWT_ACCESS_TTL_SEC,JWT_REFRESH_SECRET,JWT_REFRESH_TTL_SEC,
-            SIMULATOR_URL,SIMULATOR_RECONNECT_ATTEMPTS,SIMULATOR_TIMEOUT_MS,SLACK_WEBHOOK_URL,
-            CORS_ORIGINS
+            BACKEND_PORT,DATABASE_HOST,DATABASE_PORT,DATABASE_NAME,DATABASE_USER,DATABASE_PASSWORD,
+            JWT_ACCESS_SECRET,JWT_ACCESS_EXPIRES_IN,JWT_REFRESH_SECRET,JWT_REFRESH_EXPIRES_IN,
+            SIMULATOR_WS_URL,SLACK_WEBHOOK_URL,CORS_ORIGINS
           script: |
             set -e
             cd ~/deploy/health-backend-${BACKEND_PORT}
             docker compose -p health-backend-${BACKEND_PORT} up -d --build
         env:
           BACKEND_PORT: ${{ vars.BACKEND_PORT }}
-          DB_HOST: ${{ vars.DB_HOST }}
-          DB_PORT: ${{ vars.DB_PORT }}
-          DB_NAME: ${{ vars.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DATABASE_HOST: ${{ vars.DATABASE_HOST }}
+          DATABASE_PORT: ${{ vars.DATABASE_PORT }}
+          DATABASE_NAME: ${{ vars.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
-          JWT_ACCESS_TTL_SEC: ${{ vars.JWT_ACCESS_TTL_SEC }}
+          JWT_ACCESS_EXPIRES_IN: ${{ vars.JWT_ACCESS_EXPIRES_IN }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
-          JWT_REFRESH_TTL_SEC: ${{ vars.JWT_REFRESH_TTL_SEC }}
-          SIMULATOR_URL: ${{ vars.SIMULATOR_URL }}
-          SIMULATOR_RECONNECT_ATTEMPTS: ${{ vars.SIMULATOR_RECONNECT_ATTEMPTS }}
-          SIMULATOR_TIMEOUT_MS: ${{ vars.SIMULATOR_TIMEOUT_MS }}
+          JWT_REFRESH_EXPIRES_IN: ${{ vars.JWT_REFRESH_EXPIRES_IN }}
+          SIMULATOR_WS_URL: ${{ vars.SIMULATOR_WS_URL }}
           SLACK_WEBHOOK_URL: ${{ vars.SLACK_WEBHOOK_URL }}
           CORS_ORIGINS: ${{ vars.CORS_ORIGINS }}
