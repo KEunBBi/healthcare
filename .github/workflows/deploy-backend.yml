@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # health-backend/ 소스를 학생별 고유 경로(BACKEND_PORT 네임스페이스)로 복사한다.
       - name: Copy source to deploy server
