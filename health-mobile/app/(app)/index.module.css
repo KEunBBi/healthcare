@@ -1,0 +1,107 @@
+.page {
+  flex: 1;
+  min-height: 100vh;
+  background: var(--color-canvas-parchment);
+  padding: var(--space-lg);
+}
+
+.header {
+  margin-bottom: var(--space-lg);
+}
+
+.title {
+  font-size: 28px;
+  font-family: var(--font-display);
+  color: var(--color-ink);
+}
+
+.filters {
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.searchInput {
+  background: var(--color-canvas);
+  border-radius: var(--radius-pill);
+  padding: 12px 20px;
+  height: 44px;
+  font-size: 15px;
+  border: none;
+  outline: none;
+}
+
+.roleFilterRow {
+  flex-direction: row;
+  gap: var(--space-xs);
+}
+
+.roleChip {
+  background: var(--color-canvas);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  align-items: center;
+}
+
+.roleChipActive {
+  background: var(--color-primary);
+}
+
+.roleChipText {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-muted-80);
+}
+
+.roleChipTextActive {
+  color: var(--color-on-primary);
+}
+
+.status {
+  color: var(--color-ink-muted-48);
+  font-size: 14px;
+}
+
+.statusError {
+  color: var(--color-status-danger);
+  font-size: 14px;
+}
+
+.list {
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.row {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.info {
+  flex: 1;
+  flex-direction: column;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.meta {
+  font-size: 13px;
+  color: var(--color-ink-muted-48);
+}
+
+.roleBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-ink-muted-80);
+  background: var(--color-canvas-parchment);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+}

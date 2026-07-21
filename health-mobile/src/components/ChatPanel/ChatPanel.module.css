@@ -1,0 +1,80 @@
+.panel {
+  background: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  gap: var(--space-sm);
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.messages {
+  gap: var(--space-xs);
+  min-height: 120px;
+  max-height: 280px;
+}
+
+.placeholder {
+  color: var(--color-ink-muted-48);
+  font-size: 14px;
+}
+
+.userMessage,
+.assistantMessage {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  max-width: 85%;
+}
+
+.userMessage {
+  align-self: flex-end;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.assistantMessage {
+  align-self: flex-start;
+  background: var(--color-canvas-parchment);
+  color: var(--color-ink);
+}
+
+.error {
+  color: var(--color-status-danger);
+  font-size: 13px;
+}
+
+.form {
+  flex-direction: row;
+  gap: var(--space-xs);
+}
+
+.input {
+  flex: 1;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-hairline);
+  font-size: 14px;
+  outline: none;
+}
+
+.sendButton {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  align-items: center;
+  justify-content: center;
+}
+
+.sendButtonDisabled {
+  background: var(--color-ink-muted-48);
+}
+
+.sendButtonText {
+  color: var(--color-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+}

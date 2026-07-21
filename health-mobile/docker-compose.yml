@@ -1,0 +1,16 @@
+services:
+  health-mobile:
+    build:
+      # 모노레포 루트를 컨텍스트로 써야 ../shared/를 이미지에 포함시킬 수 있다.
+      context: ..
+      dockerfile: health-mobile/Dockerfile
+      args:
+        EXPO_PUBLIC_API_BASE_URL: ${EXPO_PUBLIC_API_BASE_URL}
+        EXPO_PUBLIC_WS_BASE_URL: ${EXPO_PUBLIC_WS_BASE_URL}
+    image: health-mobile-${MOBILE_PORT}:latest
+    container_name: health-mobile-${MOBILE_PORT}
+    restart: unless-stopped
+    # 배포 서버의 리버스 프록시가 컨테이너의 Docker 포트 매핑을 보고 라우팅하므로
+    # network_mode: host를 쓰지 않고 표준 포트 매핑을 쓴다(호스트의 MOBILE_PORT -> 컨테이너 80).
+    ports:
+      - '${MOBILE_PORT}:80'

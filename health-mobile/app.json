@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "health-mobile-scaffold",
-    "slug": "health-mobile-scaffold",
+    "name": "health-mobile",
+    "slug": "health-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "healthmobilescaffold",
+    "scheme": "healthmobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

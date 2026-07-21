@@ -1,0 +1,111 @@
+.page {
+  flex: 1;
+  min-height: 100vh;
+  background: var(--color-canvas-parchment);
+  padding: var(--space-lg);
+  gap: var(--space-lg);
+}
+
+.status {
+  color: var(--color-ink-muted-48);
+}
+
+.statusError {
+  color: var(--color-status-danger);
+}
+
+.header {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.identity {
+  flex: 1;
+}
+
+.name {
+  font-size: 24px;
+  font-family: var(--font-display);
+  color: var(--color-ink);
+}
+
+.meta {
+  font-size: 13px;
+  color: var(--color-ink-muted-48);
+  margin-top: var(--space-xxs);
+}
+
+.connectionBadge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-hairline);
+  color: var(--color-ink-muted-80);
+}
+
+.connectionBadgeConnected {
+  background: var(--color-status-success);
+  color: var(--color-on-primary);
+}
+
+.back {
+  align-self: flex-start;
+}
+
+.backText {
+  color: var(--color-primary);
+  font-size: 15px;
+}
+
+.diseases {
+  flex-direction: row;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.diseaseBadge {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-canvas);
+  color: var(--color-ink-muted-80);
+}
+
+.memo {
+  background: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  font-size: 14px;
+  color: var(--color-ink);
+}
+
+.charts {
+  gap: var(--space-sm);
+}
+
+.recent {
+  flex-direction: row;
+  gap: var(--space-sm);
+}
+
+.recentCard {
+  flex: 1;
+  background: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  gap: var(--space-xxs);
+}
+
+.recentLabel {
+  font-size: 13px;
+  color: var(--color-ink-muted-48);
+}
+
+.recentValue {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-ink);
+}

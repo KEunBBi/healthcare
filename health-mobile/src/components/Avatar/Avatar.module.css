@@ -1,0 +1,14 @@
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+}
+
+.initial {
+  color: var(--color-on-primary);
+  font-family: var(--font-display);
+  font-weight: 600;
+}

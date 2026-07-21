@@ -5,7 +5,7 @@ import { HealthChart } from '../../components/HealthChart/HealthChart';
 import { useAuth } from '../../auth/authContext';
 import { useMemberDetail } from '../../hooks/useMemberDetail';
 import { useRealtimeHealthData } from '../../hooks/useRealtimeHealthData';
-import { formatBirthDate, genderLabel } from '../../lib/format';
+import { formatBirthDate, genderLabel } from '../../../../shared/utils';
 import styles from './MemberDetail.module.css';
 
 export function MemberDetail() {

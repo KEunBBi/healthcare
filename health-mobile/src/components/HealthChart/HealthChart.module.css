@@ -1,0 +1,24 @@
+.card {
+  background: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 var(--space-xs);
+}
+
+.unit {
+  font-weight: 400;
+  color: var(--color-ink-muted-48);
+}
+
+.empty {
+  color: var(--color-ink-muted-48);
+  font-size: 14px;
+  padding: var(--space-lg) 0;
+  text-align: center;
+  margin: 0;
+}

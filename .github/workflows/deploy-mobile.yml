@@ -1,0 +1,53 @@
+name: Deploy Mobile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'health-mobile/**'
+      - 'shared/**'
+      - '.dockerignore'
+      - '.github/workflows/deploy-mobile.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # health-mobile/ 소스와 health-mobile이 참조하는 shared/를 학생별 고유 경로(MOBILE_PORT 네임스페이스)로 복사한다.
+      # 서버에서도 health-mobile/과 shared/를 형제 디렉토리로 유지해야
+      # docker-compose.yml의 build.context: .. 가 shared/를 찾을 수 있다(health-web과 동일한 이유).
+      - name: Copy source to deploy server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          port: ${{ vars.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: 'health-mobile/*,shared/*,.dockerignore'
+          target: '~/deploy/health-mobile-${{ vars.MOBILE_PORT }}'
+          rm: true
+
+      # 서버에 .env 파일을 만들지 않는다. Secrets/Variables를 SSH 세션의 환경변수로 주입해
+      # docker compose가 그 값을 build args(EXPO_PUBLIC_*)/런타임 환경변수(MOBILE_PORT)로 그대로 읽어
+      # 컨테이너를 기동하도록 한다.
+      - name: Build and start container
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          port: ${{ vars.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: >-
+            MOBILE_PORT,EXPO_PUBLIC_API_BASE_URL,EXPO_PUBLIC_WS_BASE_URL
+          script: |
+            set -e
+            cd ~/deploy/health-mobile-${MOBILE_PORT}/health-mobile
+            docker compose -p health-mobile-${MOBILE_PORT} up -d --build
+        env:
+          MOBILE_PORT: ${{ vars.MOBILE_PORT }}
+          EXPO_PUBLIC_API_BASE_URL: ${{ vars.EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_WS_BASE_URL: ${{ vars.EXPO_PUBLIC_WS_BASE_URL }}

@@ -4,7 +4,7 @@ import type { UserRole } from '../../../../shared/types';
 import { Avatar } from '../../components/Avatar/Avatar';
 import { useAuth } from '../../auth/authContext';
 import { useMembers } from '../../hooks/useMembers';
-import { formatBirthDate, genderLabel, roleLabel } from '../../lib/format';
+import { formatBirthDate, genderLabel, roleLabel } from '../../../../shared/utils';
 import styles from './MemberList.module.css';
 
 export function MemberList() {

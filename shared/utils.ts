@@ -14,3 +14,20 @@ export function isNewerThanCursor(candidateIso: string, cursorIso: string | null
   }
   return new Date(candidateIso).getTime() > new Date(cursorIso).getTime();
 }
+
+// ── 회원 정보 표시 포맷터 (health-web·health-mobile 공용, docs/DATA_MODEL.md 1.1) ──
+
+export function formatBirthDate(birthDate: string): string {
+  if (birthDate.length !== 8) return birthDate;
+  return `${birthDate.slice(0, 4)}-${birthDate.slice(4, 6)}-${birthDate.slice(6, 8)}`;
+}
+
+export function genderLabel(gender: string): string {
+  if (gender === 'M') return '남성';
+  if (gender === 'F') return '여성';
+  return gender;
+}
+
+export function roleLabel(role: 'DOCTOR' | 'PATIENT'): string {
+  return role === 'DOCTOR' ? '의사' : '환자';
+}
