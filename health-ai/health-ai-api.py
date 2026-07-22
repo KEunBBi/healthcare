@@ -15,7 +15,7 @@ curl -X POST http://localhost:8000/ask \
 
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Optional
+from typing import Literal, Optional
 
 from rag_query import (
     answer_agent_question,
@@ -45,8 +45,15 @@ class AskRequest(BaseModel):
     max_chars_per_doc: Optional[int] = None
 
 
+class ChatHistoryTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
 class ChatRequest(BaseModel):
     message: str
+    # 멀티턴 문맥 유지용 이전 대화 턴(최근 순). health-backend가 그대로 전달한다.
+    history: Optional[list[ChatHistoryTurn]] = None
 
 
 # ============================================================
@@ -91,6 +98,8 @@ def ask(request: AskRequest):
 def chat(request: ChatRequest):
     config = get_config()
 
+    history = [turn.model_dump() for turn in request.history] if request.history else None
+
     result = answer_agent_question(
         question=request.message,
         llm_model=config["llm_model"],
@@ -98,6 +107,7 @@ def chat(request: ChatRequest):
         top_k=3,
         temperature=0.2,
         verbose=False,
+        history=history,
     )
 
     return {"answer": result["answer"]}

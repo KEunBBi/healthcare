@@ -9,10 +9,13 @@ interface ChatMessage {
   content: string;
 }
 
+// 서버로 함께 보낼 이전 대화 턴 수(멀티턴 문맥 유지, API_SPEC.md 1.6).
+// 너무 길어지지 않도록 최근 턴만 보낸다.
+const MAX_HISTORY_TURNS = 10;
+
 /**
  * health-web/docs/ARCHITECTURE.md 7장 TODO: 챗봇 화면 배치가 SCREEN_DESIGN.md에 아직 없어
- * 회원 상세 화면 내부 위젯으로 임베드한다. API_SPEC.md 1.6은 message 하나만 받는 단발성 API라
- * 대화 맥락(history)은 서버로 보내지 않고 화면 표시용으로만 쌓는다.
+ * 회원 상세 화면 내부 위젯으로 임베드한다.
  */
 export function ChatPanel() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -25,13 +28,14 @@ export function ChatPanel() {
     const message = input.trim();
     if (!message || sending) return;
 
+    const history = messages.slice(-MAX_HISTORY_TURNS);
     setMessages((prev) => [...prev, { role: 'user', content: message }]);
     setInput('');
     setSending(true);
     setError(null);
 
     try {
-      const { answer } = await sendChatMessage({ message });
+      const { answer } = await sendChatMessage({ message, history });
       setMessages((prev) => [...prev, { role: 'assistant', content: answer }]);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'AI 응답을 받지 못했습니다.');

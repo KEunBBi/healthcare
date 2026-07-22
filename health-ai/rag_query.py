@@ -534,6 +534,7 @@ def answer_agent_question(
     verbose: bool = True,
     max_chars_per_doc: int | None = None,
     num_predict: int = 1024,
+    history: list[dict] | None = None,
 ) -> dict[str, Any]:
     """
     Tool & Agent 방식으로 질문에 답변한다.
@@ -541,7 +542,7 @@ def answer_agent_question(
     처리 과정:
     1. Ollama LLM 준비
     2. 문서 검색 Tool 등록
-    3. Agent가 질문을 분석
+    3. Agent가 질문을 분석 (history가 있으면 이전 대화 턴을 함께 전달해 문맥을 유지한다)
     4. 문서 검색이 필요하면 Agent가 Tool 호출
     5. 검색 결과를 근거로 최종 답변 생성
     6. 일반 질문은 Tool을 호출하지 않고 직접 답변
@@ -678,19 +679,12 @@ def answer_agent_question(
     )
 
     # ============================================================
-    # 5. Agent 실행
+    # 5. Agent 실행 (history가 있으면 이전 대화 턴 뒤에 이번 질문을 이어붙인다)
     # ============================================================
+    messages = [*(history or []), {"role": "user", "content": question}]
+
     print("\n[에이전트 실행중...]")
-    result = agent.invoke(
-        {
-            "messages": [
-                {
-                    "role": "user",
-                    "content": question,
-                }
-            ]
-        }
-    )
+    result = agent.invoke({"messages": messages})
 
     # ============================================================
     # 6. 최종 AI 답변 추출

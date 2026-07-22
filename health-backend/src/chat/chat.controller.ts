@@ -15,6 +15,6 @@ export class ChatController {
   @ApiOperation({ summary: '챗봇 질의 (health-ai Agent 프록시)' })
   @ApiUnauthorizedResponse({ description: 'AccessToken 누락/만료/위조 (AUTH_FAILED)' })
   async ask(@Body() dto: ChatMessageDto) {
-    return { answer: await this.chatService.ask(dto.message) };
+    return { answer: await this.chatService.ask(dto.message, dto.history) };
   }
 }

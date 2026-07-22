@@ -135,8 +135,15 @@ export interface MemberDetailResponseData {
 
 // ── 챗봇 (API_SPEC.md 1.6) ───────────────────────────────────────
 
+export interface ChatHistoryTurn {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export interface ChatRequest {
   message: string;
+  /** 이전 대화 턴(최근 순). 멀티턴 문맥 유지를 위해 클라이언트가 보관·전송한다. */
+  history?: ChatHistoryTurn[];
 }
 
 export interface ChatResponseData {

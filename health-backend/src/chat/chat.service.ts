@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppException } from '../common/exceptions/app.exception';
+import { ChatHistoryTurnDto } from './dto/chat-message.dto';
 
 const REQUEST_TIMEOUT_MS = 10_000;
 
@@ -10,7 +11,7 @@ export class ChatService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async ask(message: string): Promise<string> {
+  async ask(message: string, history?: ChatHistoryTurnDto[]): Promise<string> {
     const baseUrl = this.configService.getOrThrow<string>('AI_AGENT_BASE_URL');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -19,7 +20,7 @@ export class ChatService {
       const response = await fetch(`${baseUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, history }),
         signal: controller.signal,
       });
 

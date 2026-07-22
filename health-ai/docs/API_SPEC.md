@@ -33,9 +33,16 @@ health-backend `ChatService`가 호출하는 실제 프로덕션 엔드포인트
 | 필드 | 타입 | 필수 | 설명 |
 |---|---|---|---|
 | message | string | Y | 질의내용 |
+| history | `{ role: "user" \| "assistant", content: string }[]` | N | 이전 대화 턴(최근 순). health-backend가 그대로 전달한다. Agent 호출 시 `messages` 리스트의 앞부분에 이어붙여 멀티턴 문맥으로 사용한다(`rag_query.py answer_agent_question`). |
 
 ```json
-{ "message": "user_001의 건강검진 결과를 요약해줘" }
+{
+  "message": "그 사람 혈압도 알려줘",
+  "history": [
+    { "role": "user", "content": "user_001의 건강검진 결과를 요약해줘" },
+    { "role": "assistant", "content": "user_001님의 심박·혈당·혈압은 모두 정상 범위입니다..." }
+  ]
+}
 ```
 
 **응답**
