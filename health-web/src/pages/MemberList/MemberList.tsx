@@ -8,7 +8,7 @@ import { formatBirthDate, genderLabel, roleLabel } from '../../../../shared/util
 import styles from './MemberList.module.css';
 
 export function MemberList() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | ''>('');
@@ -23,6 +23,9 @@ export function MemberList() {
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>회원 목록</h1>
+        <button type="button" className={styles.logoutButton} onClick={logout}>
+          로그아웃
+        </button>
       </header>
 
       <div className={styles.filters}>

@@ -10,7 +10,7 @@ import styles from './MemberDetail.module.css';
 
 export function MemberDetail() {
   const { userId = '' } = useParams<{ userId: string }>();
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, logout } = useAuth();
   const { data, loading, error } = useMemberDetail(userId);
 
   const seed = data
@@ -59,6 +59,9 @@ export function MemberDetail() {
         <span className={styles.connectionBadge} data-connected={realtime.connected}>
           {realtime.connected ? '실시간 연결됨' : '연결 대기 중'}
         </span>
+        <button type="button" className={styles.logoutButton} onClick={logout}>
+          로그아웃
+        </button>
       </header>
 
       {member.diseases.length > 0 && (
