@@ -1,0 +1,50 @@
+name: Deploy AI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'health-ai/**'
+      - '.github/workflows/deploy-ai.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # health-ai/ 소스를 고정 경로(포트 20002, ai002.ys.iranglab.com 대응)로 복사한다.
+      - name: Copy source to deploy server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          port: ${{ vars.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: 'health-ai/*,health-ai/.dockerignore'
+          target: '~/deploy/health-ai-20002'
+          strip_components: 1
+          rm: true
+
+      # 서버에 .env 파일을 만들지 않고, health-backend와 동일한 DB Secrets/Variables를
+      # SSH 세션의 환경변수로 주입해 docker compose가 읽도록 한다 (DATABASE_* → DB_* 이름만 맞춘다).
+      - name: Build and start container
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          port: ${{ vars.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: DB_HOST,DB_PORT,DB_NAME,DB_USER,DB_PASSWORD
+          script: |
+            set -e
+            cd ~/deploy/health-ai-20002
+            docker compose -p health-ai-20002 up -d --build
+        env:
+          DB_HOST: ${{ vars.DATABASE_HOST }}
+          DB_PORT: ${{ vars.DATABASE_PORT }}
+          DB_NAME: ${{ vars.DATABASE_NAME }}
+          DB_USER: ${{ secrets.DATABASE_USER }}
+          DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
